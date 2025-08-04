@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
-  baseURL: 'https://ec2-13-203-103-15.ap-south-1.compute.amazonaws.com:8080/api', // This will use the Vite proxy
+  baseURL: 'https://gemsfromjaipur.api.easyiac.com:8080/api', // This will use the Vite proxy
   timeout: 10000, // 10 second timeout
   headers: {
     'Content-Type': 'application/json',
