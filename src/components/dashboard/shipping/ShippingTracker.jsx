@@ -53,7 +53,8 @@ const ShippingTracker = () => {
     status: 'pending',
     trackingNumber: '',
     estimatedDelivery: '',
-    notes: ''
+    notes: '',
+    quotationId: ''
   });
 
   // Function to transform API data to match component structure
@@ -142,25 +143,16 @@ const ShippingTracker = () => {
   });
 
   const handleAddOrder = async () => {
-    if (!newOrder.orderId || !newOrder.customerName) {
-      toast.error('Order ID and Customer Name are required');
+    if (!newOrder.quotationId || !newOrder.trackingNumber) {
+      toast.error('Quotation ID and Tracking ID are required');
       return;
     }
 
     try {
       setLoading(true);
       const shippingData = {
-        shippingId: newOrder.orderId,
-        clientDetails: {
-          clientName: newOrder.customerName,
-          email: newOrder.customerEmail,
-          phoneNumber: newOrder.customerPhone,
-          shippingAddress: newOrder.shippingAddress
-        },
-        trackingId: newOrder.trackingNumber,
-        status: newOrder.status.toUpperCase(),
-        notes: newOrder.notes,
-        estimatedDelivery: newOrder.estimatedDelivery
+        quotationId: newOrder.quotationId,
+        trackingId: newOrder.trackingNumber
       };
 
       await shippingApi.createShippingItem(shippingData);
@@ -178,13 +170,14 @@ const ShippingTracker = () => {
         status: 'pending',
         trackingNumber: '',
         estimatedDelivery: '',
-        notes: ''
+        notes: '',
+        quotationId: ''
       });
       setShowAddOrder(false);
-      toast.success('Order added successfully');
+      toast.success('Shipping item added successfully');
     } catch (error) {
-      console.error('Error adding order:', error);
-      toast.error('Failed to add order');
+      console.error('Error adding shipping item:', error);
+      toast.error('Failed to add shipping item');
     } finally {
       setLoading(false);
     }
@@ -254,13 +247,13 @@ const ShippingTracker = () => {
               <span className="text-lg">🔄</span>
               <span>Refresh</span>
             </button>
-            <button
-              onClick={() => setShowAddOrder(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm"
-            >
-              <span className="text-lg">📦</span>
-              <span>Add New Order</span>
-            </button>
+                         <button
+               onClick={() => setShowAddOrder(true)}
+               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm"
+             >
+               <span className="text-lg">📦</span>
+               <span>Add Shipping Item</span>
+             </button>
           </div>
         </div>
 
@@ -457,158 +450,47 @@ const ShippingTracker = () => {
       {showAddOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Add New Order</h2>
-              <button
-                onClick={() => setShowAddOrder(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ×
-              </button>
-            </div>
+                         <div className="flex justify-between items-center mb-6">
+               <h2 className="text-2xl font-bold">Add New Shipping Item</h2>
+               <button
+                 onClick={() => setShowAddOrder(false)}
+                 className="text-gray-500 hover:text-gray-700 text-2xl"
+               >
+                 ×
+               </button>
+             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Order ID *
-                </label>
-                <input
-                  type="text"
-                  value={newOrder.orderId}
-                  onChange={(e) => setNewOrder({...newOrder, orderId: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                  placeholder="GFJ-2024-XXX"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customer Name *
-                </label>
-                <input
-                  type="text"
-                  value={newOrder.customerName}
-                  onChange={(e) => setNewOrder({...newOrder, customerName: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                  placeholder="Customer Name"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customer Email
-                </label>
-                <input
-                  type="email"
-                  value={newOrder.customerEmail}
-                  onChange={(e) => setNewOrder({...newOrder, customerEmail: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                  placeholder="customer@example.com"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customer Phone
-                </label>
-                <PhoneInput
-                  country={"us"}
-                  inputProps={{
-                    name: "customerPhone",
-                    required: true,
-                  }}
-                  inputStyle={{
-                    width: "100%",
-                    height: "40px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                  }}
-                  containerStyle={{
-                    width: "100%",
-                  }}
-                  value={newOrder.customerPhone}
-                  onChange={(value, country) => {
-                    // Format phone number as +(country code)-(number)
-                    const formattedValue = `+${country.dialCode}-${value.replace(country.dialCode, '')}`;
-                    setNewOrder({...newOrder, customerPhone: formattedValue});
-                  }}
-                  placeholder="+1-555-XXXXXXX"
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Shipping Address
-                </label>
-                                 <textarea
-                   value={newOrder.shippingAddress}
-                   onChange={(e) => setNewOrder({...newOrder, shippingAddress: e.target.value})}
-                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                   Quotation ID *
+                 </label>
+                 <input
+                   type="text"
+                   value={newOrder.quotationId}
+                   onChange={(e) => setNewOrder({...newOrder, quotationId: e.target.value})}
+                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
                    style={{ color: '#111827' }}
-                   rows="2"
-                   placeholder="123 Main Street, City, State ZIP"
+                   placeholder="GFJ-QT-20250803-031"
                  />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Items
-                </label>
-                <input
-                  type="text"
-                  value={newOrder.items}
-                  onChange={(e) => setNewOrder({...newOrder, items: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                  placeholder="Diamond Ring, Gold Necklace, etc."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tracking Number
-                </label>
-                <input
-                  type="text"
-                  value={newOrder.trackingNumber}
-                  onChange={(e) => setNewOrder({...newOrder, trackingNumber: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                  placeholder="TRKXXXXXXXXX"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Estimated Delivery
-                </label>
-                <input
-                  type="date"
-                  value={newOrder.estimatedDelivery}
-                  onChange={(e) => setNewOrder({...newOrder, estimatedDelivery: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
-                </label>
-                <textarea
-                  value={newOrder.notes}
-                  onChange={(e) => setNewOrder({...newOrder, notes: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
-                  style={{ color: '#111827' }}
-                  rows="2"
-                  placeholder="Additional notes or special instructions"
-                />
-              </div>
-            </div>
+                 <p className="text-xs text-gray-500 mt-1">Enter the quotation ID to link with shipping</p>
+               </div>
+               
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                   Tracking ID *
+                 </label>
+                 <input
+                   type="text"
+                   value={newOrder.trackingNumber}
+                   onChange={(e) => setNewOrder({...newOrder, trackingNumber: e.target.value})}
+                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-gold)] focus:border-transparent text-gray-900 !text-gray-900"
+                   style={{ color: '#111827' }}
+                   placeholder="qwertyui"
+                 />
+                 <p className="text-xs text-gray-500 mt-1">Enter the tracking number for the shipment</p>
+               </div>
+             </div>
             
             <div className="flex justify-end space-x-4 mt-6">
               <button
@@ -617,12 +499,12 @@ const ShippingTracker = () => {
               >
                 Cancel
               </button>
-              <button
-                onClick={handleAddOrder}
-                className="px-6 py-2 bg-[var(--brand-gold)] hover:bg-[var(--brand-yellow)] text-black rounded-lg font-semibold transition-colors"
-              >
-                Add Order
-              </button>
+                             <button
+                 onClick={handleAddOrder}
+                 className="px-6 py-2 bg-[var(--brand-gold)] hover:bg-[var(--brand-yellow)] text-black rounded-lg font-semibold transition-colors"
+               >
+                 Add Shipping Item
+               </button>
             </div>
           </div>
         </div>

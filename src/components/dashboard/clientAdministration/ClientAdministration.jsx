@@ -256,7 +256,7 @@ const ClientAdministration = () => {
               <Button
                 type="button"
                 variant="contained"
-                disabled={selectedAgent === "all"}
+                disabled={roles[0] === "business_admin" && selectedAgent === "all"}
                 onClick={() => handleAddOrUpdate({}, false)}
                 className={`h-12 
                   ${

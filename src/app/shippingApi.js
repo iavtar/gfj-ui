@@ -27,7 +27,7 @@ export const shippingApi = {
   // Create new shipping item
   createShippingItem: async (shippingData) => {
     try {
-      const response = await apiClient.post('/shipping/createShippingItem', shippingData);
+      const response = await apiClient.post('/shipping/addShippingItem', shippingData);
       return response.data;
     } catch (error) {
       console.error('Error creating shipping item:', error);
