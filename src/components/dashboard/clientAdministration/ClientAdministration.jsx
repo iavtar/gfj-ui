@@ -106,9 +106,11 @@ const ClientAdministration = () => {
   useEffect(() => {
     if (roles[0] === "business_admin") {
       fetchAllUsers();
+    } else {
+      setSelectedAgent(id);
     }
     fetchUsers();
-  }, [fetchAllUsers, fetchUsers, roles]);
+  }, [fetchAllUsers, fetchUsers, roles, id]);
 
   const handleAddOrUpdate = (user, isEdit) => {
     if (isEdit) {
